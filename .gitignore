@@ -3,4 +3,3 @@ __pycache__/
 *.pyc
 lista.txt
 lista.tmp
-assets/*.png

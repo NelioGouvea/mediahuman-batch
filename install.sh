@@ -15,7 +15,7 @@ step() {
 install_system_packages() {
     step "Instalando pacotes do sistema"
     sudo apt-get update
-    sudo apt-get install -y python3-venv python3-tk python3-dev xclip xdotool gnome-screenshot wget
+    sudo apt-get install -y python3-venv python3-tk wget
 }
 
 install_python_environment() {
@@ -64,18 +64,10 @@ EOF
     echo "Atalho criado em $LAUNCHER_FILE"
 }
 
-check_session() {
-    if [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
-        step "Atenção: sessão Wayland detectada"
-        echo "A automação só funciona em sessão X11. Veja a seção \"Sessão X11\" do README."
-    fi
-}
-
 install_system_packages
 install_python_environment
 install_mediahuman
 create_launcher
-check_session
 
 step "Instalação concluída"
 echo "Abra \"MediaHuman Batch\" no menu de aplicativos ou rode ./run.sh"
