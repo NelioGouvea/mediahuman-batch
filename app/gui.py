@@ -6,8 +6,8 @@ from tkinter.scrolledtext import ScrolledText
 
 from yt_dlp.utils import DownloadError
 
-from app.config import QUEUE_FILE, find_app_executable
-from app.mediahuman import MediaHumanError, install_app, send_queue
+from app.config import QUEUE_FILE
+from app.mediahuman import MediaHumanError, find_app_executable, install_app, send_queue
 from app.playlist import extract_video_urls, parse_input
 from app.url_queue import UrlQueue
 
@@ -102,7 +102,7 @@ class App(tk.Tk):
             return
         message = (
             "O MediaHuman YouTube to MP3 não está instalado.\n\n"
-            "Deseja baixar e instalar agora? Será pedida a senha de administrador."
+            "Deseja baixar e instalar agora? Será pedida permissão de administrador."
         )
         if messagebox.askyesno("MediaHuman não encontrado", message):
             self.run_in_background(self._install_app)

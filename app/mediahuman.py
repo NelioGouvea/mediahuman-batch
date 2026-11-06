@@ -5,18 +5,26 @@ import urllib.request
 from pathlib import Path
 
 from app.config import (
-    APP_BINARY_NAME,
-    APP_DEB_URL,
     APP_DOWNLOAD_PAGE,
+    APP_INSTALLER_URL,
     APP_STARTUP_DELAY,
+    IS_WINDOWS,
     SEND_INTERVAL,
     SEND_TIMEOUT,
-    find_app_executable,
 )
+
+if IS_WINDOWS:
+    from app import windows as system
+else:
+    from app import linux as system
 
 
 class MediaHumanError(Exception):
     pass
+
+
+def find_app_executable():
+    return system.find_executable()
 
 
 def require_executable():
@@ -31,22 +39,18 @@ def require_executable():
 def install_app():
     with tempfile.TemporaryDirectory() as temp_dir:
         Path(temp_dir).chmod(0o755)
-        deb_path = Path(temp_dir) / "YouTubeToMP3.amd64.deb"
-        urllib.request.urlretrieve(APP_DEB_URL, deb_path)
-        deb_path.chmod(0o644)
-        result = subprocess.run(["pkexec", "apt-get", "install", "-y", str(deb_path)], capture_output=True)
-    if result.returncode != 0:
+        installer_path = Path(temp_dir) / APP_INSTALLER_URL.rsplit("/", 1)[1]
+        urllib.request.urlretrieve(APP_INSTALLER_URL, installer_path)
+        installer_path.chmod(0o644)
+        installed = system.run_installer(installer_path)
+    if not installed or find_app_executable() is None:
         raise MediaHumanError(
             f"Não foi possível instalar o MediaHuman automaticamente. Baixe em {APP_DOWNLOAD_PAGE}"
         )
 
 
-def is_running():
-    return subprocess.run(["pgrep", "-x", APP_BINARY_NAME], capture_output=True).returncode == 0
-
-
 def ensure_running(executable):
-    if is_running():
+    if system.is_running():
         return
     subprocess.Popen(
         [executable],
