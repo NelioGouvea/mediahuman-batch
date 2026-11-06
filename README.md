@@ -21,7 +21,7 @@ Para ter um atalho, clique com o botão direito no `MediaHumanBatch.exe` e escol
 
 ### Pelo pacote `.deb` (recomendado)
 
-1. Baixe o arquivo `mediahuman-batch_<versão>_all.deb` na página de [Releases](https://github.com/NelioGouvea/mediahuman-batch/releases/latest).
+1. Baixe o arquivo `mediahuman-batch_<versão>_all.deb` no [release v1.0.0](https://github.com/NelioGouvea/mediahuman-batch/releases/tag/v1.0.0).
 2. Dê dois cliques no arquivo e clique em **Instalar**, ou rode no terminal, na pasta do download:
 
 ```bash
