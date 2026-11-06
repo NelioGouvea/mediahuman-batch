@@ -42,6 +42,11 @@ def install_app():
         installer_path = Path(temp_dir) / APP_INSTALLER_URL.rsplit("/", 1)[1]
         urllib.request.urlretrieve(APP_INSTALLER_URL, installer_path)
         installer_path.chmod(0o644)
+        if not system.verify_installer(installer_path):
+            raise MediaHumanError(
+                "O instalador baixado não passou na verificação de segurança e não foi executado. "
+                f"Baixe e instale manualmente em {APP_DOWNLOAD_PAGE}"
+            )
         installed = system.run_installer(installer_path)
     if not installed or find_app_executable() is None:
         raise MediaHumanError(

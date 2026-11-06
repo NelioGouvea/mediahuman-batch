@@ -3,7 +3,7 @@ import subprocess
 import winreg
 from pathlib import Path
 
-from app.config import APP_BINARY_NAME, APP_DISPLAY_NAME
+from app.config import APP_BINARY_NAME, APP_DISPLAY_NAME, APP_INSTALLER_SIGNER
 
 UNINSTALL_KEYS = [
     (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"),
@@ -57,11 +57,33 @@ def is_running():
     return APP_BINARY_NAME.lower() in result.stdout.lower()
 
 
-def run_installer(installer_path):
-    quoted_path = str(installer_path).replace("'", "''")
+def powershell_quote(value):
+    return "'" + str(value).replace("'", "''") + "'"
+
+
+def verify_installer(installer_path):
     command = (
-        f"Start-Process -FilePath '{quoted_path}' "
-        "-ArgumentList '/SILENT','/SUPPRESSMSGBOXES','/NORESTART' -Verb RunAs -Wait"
+        f"$signature = Get-AuthenticodeSignature -LiteralPath {powershell_quote(installer_path)}; "
+        "if ($signature.Status -ne 'Valid') { exit 1 }; "
+        "$signature.SignerCertificate.GetNameInfo('SimpleName', $false)"
+    )
+    result = subprocess.run(
+        ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],
+        capture_output=True,
+        text=True,
+        creationflags=subprocess.CREATE_NO_WINDOW,
+    )
+    return result.returncode == 0 and result.stdout.strip() == APP_INSTALLER_SIGNER
+
+
+def run_installer(installer_path):
+    # Não usa Start-Process -Wait: ele espera também os processos filhos, e o instalador
+    # abre o MediaHuman no fim, o que travaria a instalação até o usuário fechar o app.
+    command = (
+        f"$installer = Start-Process -FilePath {powershell_quote(installer_path)} "
+        "-ArgumentList '/SILENT','/SUPPRESSMSGBOXES','/NORESTART' -Verb RunAs -PassThru; "
+        "$installer.WaitForExit(); "
+        "exit $installer.ExitCode"
     )
     result = subprocess.run(
         ["powershell", "-NoProfile", "-NonInteractive", "-Command", command],

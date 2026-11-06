@@ -4,6 +4,8 @@ set -euo pipefail
 PROJECT_DIR="$(dirname "$(readlink -f "$0")")"
 MEDIAHUMAN_EXECUTABLE="/opt/youtube-to-mp3/YouTubeToMP3"
 MEDIAHUMAN_DEB_URL="https://www.mediahuman.com/files/YouTubeToMP3.amd64.deb"
+# Mesmo valor de APP_INSTALLER_SHA256 em app/config.py.
+MEDIAHUMAN_DEB_SHA256="945dcd1a0ce4acbb958b98d4fde79f78cc07673da49dfc3b264780d160272cbc"
 MEDIAHUMAN_PAGE="https://www.mediahuman.com/youtube-to-mp3-converter/"
 LAUNCHER_FILE="$HOME/.local/share/applications/mediahuman-batch.desktop"
 
@@ -36,15 +38,23 @@ install_mediahuman() {
     deb_file="$(mktemp --suffix=.deb)"
     chmod 644 "$deb_file"
 
-    if wget -O "$deb_file" "$MEDIAHUMAN_DEB_URL" && sudo apt-get install -y "$deb_file"; then
+    local installed=false
+    if ! wget -O "$deb_file" "$MEDIAHUMAN_DEB_URL"; then
+        echo "Não foi possível baixar o MediaHuman."
+    elif ! echo "$MEDIAHUMAN_DEB_SHA256  $deb_file" | sha256sum --check --status; then
+        echo "O .deb baixado não passou na verificação de segurança (SHA-256 diferente do esperado) e não foi instalado."
+    elif sudo apt-get install -y "$deb_file"; then
+        installed=true
+    fi
+    rm -f "$deb_file"
+
+    if [[ "$installed" == true ]]; then
         echo "MediaHuman instalado."
     else
         echo "Não foi possível instalar o MediaHuman automaticamente."
         echo "Baixe o .deb em $MEDIAHUMAN_PAGE e instale com:"
         echo "    sudo apt install ./YouTubeToMP3.amd64.deb"
     fi
-
-    rm -f "$deb_file"
 }
 
 create_launcher() {

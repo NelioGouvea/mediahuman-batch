@@ -7,17 +7,22 @@ on:
     types: [published]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
     runs-on: windows-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v7
 
       - uses: actions/setup-python@v7
         with:
           python-version: "3.13"
+
+      - name: Verificar sintaxe
+        run: python -m compileall -q app
 
       - name: Gerar MediaHumanBatch.exe
         run: ./build-exe.ps1
@@ -27,8 +32,19 @@ jobs:
           name: MediaHumanBatch
           path: dist/MediaHumanBatch.exe
 
+  release:
+    if: github.event_name == 'release'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: MediaHumanBatch
+
       - name: Anexar ao release
-        if: github.event_name == 'release'
-        run: gh release upload "${{ github.event.release.tag_name }}" dist/MediaHumanBatch.exe --clobber
+        run: gh release upload "$TAG" MediaHumanBatch.exe --clobber --repo "$GITHUB_REPOSITORY"
         env:
           GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}

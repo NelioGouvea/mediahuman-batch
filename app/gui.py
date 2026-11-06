@@ -22,6 +22,7 @@ class App(tk.Tk):
         self.url_queue = UrlQueue(QUEUE_FILE)
         self.events = queue.Queue()
         self.status_var = tk.StringVar()
+        self.busy = False
 
         self._build_layout()
         self.refresh_status()
@@ -49,7 +50,8 @@ class App(tk.Tk):
         self.log_text.pack(fill=tk.BOTH, expand=True)
 
     def refresh_status(self):
-        self.status_var.set(f"Fila: {len(self.url_queue.read())} pendente(s)")
+        self.pending_count = len(self.url_queue.read())
+        self.status_var.set(f"Fila: {self.pending_count} pendente(s)")
 
     def emit(self, kind, payload=None):
         self.events.put((kind, payload))
@@ -67,7 +69,15 @@ class App(tk.Tk):
             except queue.Empty:
                 break
             self._handle_event(kind, payload)
+        self._update_import_button()
         self.after(100, self._drain_events)
+
+    def _has_work(self):
+        return bool(self.input_text.get("1.0", tk.END).strip()) or self.pending_count > 0
+
+    def _update_import_button(self):
+        enabled = not self.busy and self._has_work()
+        self.import_button.configure(state=tk.NORMAL if enabled else tk.DISABLED)
 
     def _handle_event(self, kind, payload):
         if kind == "log":
@@ -80,10 +90,11 @@ class App(tk.Tk):
             self.log(f"Erro: {payload}")
             messagebox.showerror("MediaHuman Batch", payload)
         elif kind == "done":
-            self.import_button.configure(state=tk.NORMAL)
+            self.busy = False
             self.refresh_status()
 
     def run_in_background(self, work, *args):
+        self.busy = True
         self.import_button.configure(state=tk.DISABLED)
         threading.Thread(target=self._run_safely, args=(work, *args), daemon=True).start()
 
@@ -110,7 +121,7 @@ class App(tk.Tk):
     def _install_app(self):
         self.emit("log", "Baixando e instalando o MediaHuman YouTube to MP3…")
         install_app()
-        self.emit("log", "MediaHuman instalado.")
+        self.emit("log", "MediaHuman instalado. Cole as URLs e clique em Importar.")
 
     def on_import(self):
         playlists = parse_input(self.input_text.get("1.0", tk.END))

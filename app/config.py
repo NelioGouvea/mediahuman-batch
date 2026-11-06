@@ -16,9 +16,14 @@ APP_DOWNLOAD_PAGE = "https://www.mediahuman.com/youtube-to-mp3-converter/"
 if IS_WINDOWS:
     APP_BINARY_NAME = "YouTubeToMP3.exe"
     APP_INSTALLER_URL = "https://www.mediahuman.com/files/YouTubeToMP3-x64.exe"
+    # Nome do titular do certificado que assina o instalador oficial da MediaHuman.
+    APP_INSTALLER_SIGNER = "Vyacheslav Anatolievich Parygin IP"
 else:
     APP_BINARY_NAME = "YouTubeToMP3"
     APP_INSTALLER_URL = "https://www.mediahuman.com/files/YouTubeToMP3.amd64.deb"
+    # O .deb não é assinado: confere o SHA-256 da versão conhecida.
+    # Atualize junto com o install.sh quando a MediaHuman publicar uma versão nova.
+    APP_INSTALLER_SHA256 = "945dcd1a0ce4acbb958b98d4fde79f78cc07673da49dfc3b264780d160272cbc"
     APP_EXECUTABLE = Path("/opt/youtube-to-mp3/YouTubeToMP3")
 
 APP_STARTUP_DELAY = 10

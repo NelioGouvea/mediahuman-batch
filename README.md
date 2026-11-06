@@ -78,6 +78,7 @@ URLs de vídeos avulsos também funcionam. Vídeos privados e removidos das play
 | Problema | Solução |
 | :---- | :---- |
 | "MediaHuman YouTube to MP3 não está instalado" | Feche e abra o MediaHuman Batch para ver a oferta de instalação, ou instale o `.deb` da [página oficial](https://www.mediahuman.com/youtube-to-mp3-converter/) com `sudo apt install ./YouTubeToMP3.amd64.deb`. |
+| "O instalador baixado não passou na verificação de segurança" | Antes de pedir permissão de administrador, a ferramenta confere a assinatura digital do instalador (Windows) ou o SHA-256 do `.deb` (Ubuntu). No Ubuntu, isso costuma significar que a MediaHuman publicou uma versão nova: instale o `.deb` da [página oficial](https://www.mediahuman.com/youtube-to-mp3-converter/) manualmente. |
 | Os primeiros vídeos não aparecem quando o MediaHuman estava fechado | O app demorou para abrir. Abra o MediaHuman antes de importar, ou aumente `APP_STARTUP_DELAY` em `app/config.py`. |
 | "Falha ao ler" uma playlist | Confira se a playlist é pública. Se for, atualize o `yt-dlp`: no pacote `.deb`, `sudo dpkg-reconfigure mediahuman-batch`; no código-fonte, `.venv/bin/pip install -U yt-dlp`; no Windows, baixe o `MediaHumanBatch.exe` mais recente. |
 | Erro ao abrir depois de atualizar o Ubuntu | Rode `sudo dpkg-reconfigure mediahuman-batch` para recriar o ambiente Python. |
