@@ -6,8 +6,8 @@ from tkinter.scrolledtext import ScrolledText
 
 from yt_dlp.utils import DownloadError
 
-from app.config import QUEUE_FILE
-from app.mediahuman import MediaHumanError, send_queue
+from app.config import QUEUE_FILE, find_app_executable
+from app.mediahuman import MediaHumanError, install_app, send_queue
 from app.playlist import extract_video_urls, parse_input
 from app.url_queue import UrlQueue
 
@@ -26,6 +26,7 @@ class App(tk.Tk):
         self._build_layout()
         self.refresh_status()
         self.after(100, self._drain_events)
+        self.after(500, self.offer_app_install)
 
     def _build_layout(self):
         frame = ttk.Frame(self, padding=12)
@@ -82,6 +83,35 @@ class App(tk.Tk):
             self.import_button.configure(state=tk.NORMAL)
             self.refresh_status()
 
+    def run_in_background(self, work, *args):
+        self.import_button.configure(state=tk.DISABLED)
+        threading.Thread(target=self._run_safely, args=(work, *args), daemon=True).start()
+
+    def _run_safely(self, work, *args):
+        try:
+            work(*args)
+        except MediaHumanError as error:
+            self.emit("error", str(error))
+        except Exception as error:
+            self.emit("error", f"Erro inesperado: {error}")
+        finally:
+            self.emit("done")
+
+    def offer_app_install(self):
+        if find_app_executable() is not None:
+            return
+        message = (
+            "O MediaHuman YouTube to MP3 não está instalado.\n\n"
+            "Deseja baixar e instalar agora? Será pedida a senha de administrador."
+        )
+        if messagebox.askyesno("MediaHuman não encontrado", message):
+            self.run_in_background(self._install_app)
+
+    def _install_app(self):
+        self.emit("log", "Baixando e instalando o MediaHuman YouTube to MP3…")
+        install_app()
+        self.emit("log", "MediaHuman instalado.")
+
     def on_import(self):
         playlists = parse_input(self.input_text.get("1.0", tk.END))
         if not playlists and not self.url_queue.read():
@@ -89,18 +119,7 @@ class App(tk.Tk):
             return
 
         self.input_text.delete("1.0", tk.END)
-        self.import_button.configure(state=tk.DISABLED)
-        threading.Thread(target=self._run_import, args=(playlists,), daemon=True).start()
-
-    def _run_import(self, playlists):
-        try:
-            self._import(playlists)
-        except MediaHumanError as error:
-            self.emit("error", str(error))
-        except Exception as error:
-            self.emit("error", f"Erro inesperado: {error}")
-        finally:
-            self.emit("done")
+        self.run_in_background(self._import, playlists)
 
     def _import(self, playlists):
         for playlist_url in playlists:

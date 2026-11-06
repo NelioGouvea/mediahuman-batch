@@ -59,7 +59,7 @@ Comment=Importa playlists do YouTube para o MediaHuman YouTube to MP3
 Exec=$PROJECT_DIR/run.sh
 Icon=multimedia-player
 Terminal=false
-Categories=AudioVideo;Utility;
+Categories=AudioVideo;Audio;
 EOF
     echo "Atalho criado em $LAUNCHER_FILE"
 }

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=MediaHuman Batch
+Comment=Importa playlists do YouTube para o MediaHuman YouTube to MP3
+Exec=mediahuman-batch
+Icon=multimedia-player
+Terminal=false
+Categories=AudioVideo;Audio;

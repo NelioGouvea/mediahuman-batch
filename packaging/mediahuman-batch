@@ -1,0 +1,3 @@
+#!/bin/sh
+cd /opt/mediahuman-batch
+exec venv/bin/python -m app

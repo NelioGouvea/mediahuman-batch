@@ -1,8 +1,12 @@
 import subprocess
+import tempfile
 import time
+import urllib.request
+from pathlib import Path
 
 from app.config import (
     APP_BINARY_NAME,
+    APP_DEB_URL,
     APP_DOWNLOAD_PAGE,
     APP_STARTUP_DELAY,
     SEND_INTERVAL,
@@ -22,6 +26,19 @@ def require_executable():
             f"MediaHuman YouTube to MP3 não está instalado. Baixe em {APP_DOWNLOAD_PAGE}"
         )
     return executable
+
+
+def install_app():
+    with tempfile.TemporaryDirectory() as temp_dir:
+        Path(temp_dir).chmod(0o755)
+        deb_path = Path(temp_dir) / "YouTubeToMP3.amd64.deb"
+        urllib.request.urlretrieve(APP_DEB_URL, deb_path)
+        deb_path.chmod(0o644)
+        result = subprocess.run(["pkexec", "apt-get", "install", "-y", str(deb_path)], capture_output=True)
+    if result.returncode != 0:
+        raise MediaHumanError(
+            f"Não foi possível instalar o MediaHuman automaticamente. Baixe em {APP_DOWNLOAD_PAGE}"
+        )
 
 
 def is_running():

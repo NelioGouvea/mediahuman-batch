@@ -21,6 +21,7 @@ class UrlQueue:
         self._write([item for item in self.read() if item != url])
 
     def _write(self, urls):
+        self.path.parent.mkdir(parents=True, exist_ok=True)
         temp_path = self.path.with_suffix(".tmp")
         content = "".join(f"{url}\n" for url in urls)
         temp_path.write_text(content, encoding="utf-8")

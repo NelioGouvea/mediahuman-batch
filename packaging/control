@@ -1,0 +1,11 @@
+Package: mediahuman-batch
+Version: @VERSION@
+Section: sound
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.10), python3-venv, python3-tk, pkexec
+Maintainer: Nélio Gouvêa <nelioalvesgouvea@gmail.com>
+Homepage: https://github.com/NelioGouvea/mediahuman-batch
+Description: Importa playlists do YouTube para o MediaHuman YouTube to MP3
+ Extrai os vídeos de playlists do YouTube com yt-dlp e os envia para a
+ lista do MediaHuman YouTube to MP3. Não inicia downloads.

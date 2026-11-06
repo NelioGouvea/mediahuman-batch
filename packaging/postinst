@@ -1,0 +1,14 @@
+#!/bin/sh
+set -e
+
+APP_DIR=/opt/mediahuman-batch
+
+if [ "$1" = "configure" ]; then
+    rm -rf "$APP_DIR/venv"
+    python3 -m venv "$APP_DIR/venv"
+    if ! "$APP_DIR/venv/bin/pip" install --quiet --disable-pip-version-check -r "$APP_DIR/requirements.txt"; then
+        echo "Falha ao instalar o yt-dlp. Verifique a conexão com a internet e rode:" >&2
+        echo "    sudo dpkg --configure mediahuman-batch" >&2
+        exit 1
+    fi
+fi
