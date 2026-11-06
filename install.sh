@@ -64,10 +64,20 @@ EOF
     echo "Atalho criado em $LAUNCHER_FILE"
 }
 
+launch_app() {
+    step "Abrindo o MediaHuman Batch"
+    if [[ -z "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
+        echo "Nenhuma sessão gráfica detectada. Abra pelo menu quando estiver na área de trabalho."
+        return
+    fi
+    setsid "$PROJECT_DIR/run.sh" >/dev/null 2>&1 &
+}
+
 install_system_packages
 install_python_environment
 install_mediahuman
 create_launcher
+launch_app
 
 step "Instalação concluída"
-echo "Abra \"MediaHuman Batch\" no menu de aplicativos ou rode ./run.sh"
+echo "Nas próximas vezes, abra \"MediaHuman Batch\" no menu de aplicativos ou rode ./run.sh"

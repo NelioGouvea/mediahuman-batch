@@ -19,7 +19,8 @@ O instalador pede a senha do `sudo` e:
 - instala os pacotes do sistema (`python3-venv`, `python3-tk`, `wget`);
 - cria o ambiente Python em `.venv/` e instala o `yt-dlp`;
 - baixa e instala o MediaHuman YouTube to MP3, se ainda não estiver instalado;
-- cria o atalho **MediaHuman Batch** no menu de aplicativos.
+- cria o atalho **MediaHuman Batch** no menu de aplicativos;
+- abre o MediaHuman Batch pela primeira vez.
 
 Se o MediaHuman não for instalado automaticamente, baixe o `.deb` na [página oficial](https://www.mediahuman.com/youtube-to-mp3-converter/) e instale com:
 
